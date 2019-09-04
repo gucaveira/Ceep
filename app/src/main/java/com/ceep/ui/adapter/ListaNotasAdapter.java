@@ -1,4 +1,4 @@
-package com.ceep.ui;
+package com.ceep.ui.adapter;
 
 import android.content.Context;
 import android.view.LayoutInflater;
