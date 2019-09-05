@@ -11,7 +11,7 @@ public class NotaDao {
 
     private static final ArrayList<Nota> notas = new ArrayList();
 
-    public List<Nota> notasTodas() {
+    public List<Nota> todos() {
         return (List<Nota>) notas.clone();
     }
 
