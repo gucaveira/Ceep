@@ -1,11 +1,15 @@
-package com.ceep;
+package com.ceep.ui.recyclerview.adapter.activity;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.ceep.R;
 import com.ceep.dao.NotaDao;
 import com.ceep.model.Nota;
 import com.ceep.ui.recyclerview.adapter.ListaNotasAdapter;
@@ -20,6 +24,17 @@ public class ListaNotasActivity extends AppCompatActivity {
         setContentView(R.layout.activity_lista_notas);
         List<Nota> todasNotas = notaDeExemplo();
         configuraRecyclerView(todasNotas);
+
+        TextView botaoInsereNota = findViewById(R.id.lista_notas_insere_nota);
+        botaoInsereNota.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent iniciaFormulario = new Intent(ListaNotasActivity.this,
+                        FormularioNotaActivity.class);
+                startActivity(iniciaFormulario);
+            }
+        });
+
     }
 
     private List<Nota> notaDeExemplo() {
