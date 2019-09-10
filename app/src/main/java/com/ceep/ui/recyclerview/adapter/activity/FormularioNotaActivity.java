@@ -1,5 +1,6 @@
 package com.ceep.ui.recyclerview.adapter.activity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -14,6 +15,9 @@ import com.ceep.model.Nota;
 
 public class FormularioNotaActivity extends AppCompatActivity {
 
+    public static final String CHAVE_NOTA = "nota";
+    public static final int CODIGO_RESULTADO_NOTA_CRIADA = 2;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -27,14 +31,28 @@ public class FormularioNotaActivity extends AppCompatActivity {
     }
 
     @Override
-    public boolean onContextItemSelected(@NonNull MenuItem item) {
-        if (item.getItemId() == R.id.menu_formulario_nota_ic_salva) {
-            EditText titulo = findViewById(R.id.formulario_nota_titulo);
-            EditText descricao = findViewById(R.id.formulario_nota_descricao);
-            Nota notaCriada = new Nota(titulo.getText().toString(), descricao.getText().toString());
-            new NotaDao().insere(notaCriada);
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        if (ehMenuSalvarNota(item)) {
+            Nota notaCriada = criaNota();
+            retornaNota(notaCriada);
             finish();
         }
-        return super.onContextItemSelected(item);
+        return super.onOptionsItemSelected(item);
+    }
+
+    private void retornaNota(Nota nota) {
+        Intent resultadoInsercao = new Intent();
+        resultadoInsercao.putExtra(CHAVE_NOTA,nota);
+        setResult(CODIGO_RESULTADO_NOTA_CRIADA, resultadoInsercao);
+    }
+
+    private Nota criaNota() {
+        EditText titulo = findViewById(R.id.formulario_nota_titulo);
+        EditText descricao = findViewById(R.id.formulario_nota_descricao);
+        return new Nota(titulo.getText().toString(), descricao.getText().toString());
+    }
+
+    private boolean ehMenuSalvarNota(@NonNull MenuItem item) {
+        return item.getItemId() == R.id.menu_formulario_nota_ic_salva;
     }
 }

@@ -5,8 +5,8 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.ceep.R;
@@ -14,6 +14,7 @@ import com.ceep.dao.NotaDao;
 import com.ceep.model.Nota;
 import com.ceep.ui.recyclerview.adapter.ListaNotasAdapter;
 
+import java.io.Serializable;
 import java.util.List;
 
 public class ListaNotasActivity extends AppCompatActivity {
@@ -33,9 +34,9 @@ public class ListaNotasActivity extends AppCompatActivity {
         botaoInsereNota.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent iniciaFormulario = new Intent(ListaNotasActivity.this,
+                Intent iniciaFormularioNota = new Intent(ListaNotasActivity.this,
                         FormularioNotaActivity.class);
-                startActivity(iniciaFormulario);
+                startActivityForResult(iniciaFormularioNota, 1);
             }
         });
 
@@ -43,10 +44,6 @@ public class ListaNotasActivity extends AppCompatActivity {
 
     @Override
     protected void onResume() {
-        NotaDao dao = new NotaDao();
-        todasNotas.clear();
-        todasNotas.addAll(dao.todos());
-        adapter.notifyDataSetChanged();
         super.onResume();
     }
 
@@ -66,5 +63,15 @@ public class ListaNotasActivity extends AppCompatActivity {
     private void configuraAdapter(List<Nota> todasNotas, RecyclerView listaNotas) {
         adapter = new ListaNotasAdapter(this, todasNotas);
         listaNotas.setAdapter(adapter);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        if(requestCode == 1 && resultCode == 2 && data.hasExtra("nota")){
+            Nota notaRecebida = (Nota) data.getSerializableExtra("nota");
+            new NotaDao().insere(notaRecebida);
+            adapter.adiciona(notaRecebida);
+        }
+        super.onActivityResult(requestCode, resultCode, data);
     }
 }
