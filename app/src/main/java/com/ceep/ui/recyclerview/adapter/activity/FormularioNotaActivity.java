@@ -10,7 +10,6 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.ceep.R;
-import com.ceep.dao.NotaDao;
 import com.ceep.model.Nota;
 
 public class FormularioNotaActivity extends AppCompatActivity {
