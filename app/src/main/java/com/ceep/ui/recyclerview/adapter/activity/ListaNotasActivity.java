@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -13,6 +14,7 @@ import com.ceep.R;
 import com.ceep.dao.NotaDao;
 import com.ceep.model.Nota;
 import com.ceep.ui.recyclerview.adapter.ListaNotasAdapter;
+import com.ceep.ui.recyclerview.adapter.OnItemClickListener;
 
 import java.util.List;
 
@@ -71,6 +73,12 @@ public class ListaNotasActivity extends AppCompatActivity {
     private void configuraAdapter(List<Nota> todasNotas, RecyclerView listaNotas) {
         adapter = new ListaNotasAdapter(this, todasNotas);
         listaNotas.setAdapter(adapter);
+        adapter.setOnItemClickListener(new OnItemClickListener() {
+            @Override
+            public void onItemClick() {
+                Toast.makeText(ListaNotasActivity.this, "ViewHolder dentro actitivy", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     @Override
