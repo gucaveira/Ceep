@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.ceep.R;
 import com.ceep.model.Nota;
+import com.ceep.ui.recyclerview.adapter.listener.OnItemClickListener;
 
 import java.util.List;
 
@@ -49,13 +50,18 @@ public class ListaNotasAdapter extends RecyclerView.Adapter<ListaNotasAdapter.No
         return notas.size();
     }
 
+    public void adiciona(Nota nota) {
+        notas.add(nota);
+        notifyDataSetChanged();
+    }
 
     class NotaViewHolder extends RecyclerView.ViewHolder {
 
         private final TextView titulo;
         private final TextView descricao;
+        private Nota nota;
 
-        public NotaViewHolder(@NonNull View itemView) {
+        private NotaViewHolder(@NonNull View itemView) {
             super(itemView);
 
             titulo = itemView.findViewById(R.id.item_nota_titulo);
@@ -63,12 +69,13 @@ public class ListaNotasAdapter extends RecyclerView.Adapter<ListaNotasAdapter.No
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    onItemClickListener.onItemClick();
+                    onItemClickListener.onItemClick(nota);
                 }
             });
         }
 
-        public void vincula(Nota nota) {
+        private void vincula(Nota nota) {
+            this.nota = nota;
             preencheCampo(nota);
         }
 
@@ -76,10 +83,5 @@ public class ListaNotasAdapter extends RecyclerView.Adapter<ListaNotasAdapter.No
             titulo.setText(nota.getTitulo());
             descricao.setText(nota.getDescricao());
         }
-    }
-
-    public void adiciona(Nota nota){
-        notas.add(nota);
-        notifyDataSetChanged();
     }
 }

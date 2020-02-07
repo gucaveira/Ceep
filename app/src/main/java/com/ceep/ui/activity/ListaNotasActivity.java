@@ -1,4 +1,4 @@
-package com.ceep.ui.recyclerview.adapter.activity;
+package com.ceep.ui.activity;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -14,13 +14,13 @@ import com.ceep.R;
 import com.ceep.dao.NotaDao;
 import com.ceep.model.Nota;
 import com.ceep.ui.recyclerview.adapter.ListaNotasAdapter;
-import com.ceep.ui.recyclerview.adapter.OnItemClickListener;
+import com.ceep.ui.recyclerview.adapter.listener.OnItemClickListener;
 
 import java.util.List;
 
-import static com.ceep.ui.recyclerview.adapter.activity.NotaActivityConstantes.CHAVE_NOTA;
-import static com.ceep.ui.recyclerview.adapter.activity.NotaActivityConstantes.CODIGO_REQUISICAO_INSERE_NOTA;
-import static com.ceep.ui.recyclerview.adapter.activity.NotaActivityConstantes.CODIGO_RESULTA_NOTA_CRIADA;
+import static com.ceep.ui.activity.NotaActivityConstantes.CHAVE_NOTA;
+import static com.ceep.ui.activity.NotaActivityConstantes.CODIGO_REQUISICAO_INSERE_NOTA;
+import static com.ceep.ui.activity.NotaActivityConstantes.CODIGO_RESULTADO_NOTA_CRIADA;
 
 public class ListaNotasActivity extends AppCompatActivity {
 
@@ -57,37 +57,25 @@ public class ListaNotasActivity extends AppCompatActivity {
 
     private List<Nota> pegaTodasNotas() {
         NotaDao dao = new NotaDao();
+        for (int i = 0; i < 10; i++) {
+            dao.insere(
+                    new Nota("Título " + (i + 1),
+                            "Descrição " + (i + 1)));
+        }
         return dao.todos();
-    }
-
-    private List<Nota> notaDeExemplo() {
-        NotaDao dao = new NotaDao();
-        return dao.todos();
-    }
-
-    private void configuraRecyclerView(List<Nota> todasNotas) {
-        RecyclerView listaNotas = findViewById(R.id.lista_notas_recyclirview);
-        configuraAdapter(todasNotas, listaNotas);
-    }
-
-    private void configuraAdapter(List<Nota> todasNotas, RecyclerView listaNotas) {
-        adapter = new ListaNotasAdapter(this, todasNotas);
-        listaNotas.setAdapter(adapter);
-        adapter.setOnItemClickListener(new OnItemClickListener() {
-            @Override
-            public void onItemClick() {
-                Toast.makeText(ListaNotasActivity.this, "ViewHolder dentro actitivy", Toast.LENGTH_SHORT).show();
-            }
-        });
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
         if (ehResultadoComNota(requestCode, resultCode, data)) {
-            Nota notaRecebida = (Nota) data.getSerializableExtra("nota");
+            Nota notaRecebida = (Nota) data.getSerializableExtra(CHAVE_NOTA);
             adiciona(notaRecebida);
         }
-        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == 2 && resultCode == CODIGO_RESULTADO_NOTA_CRIADA && temNota(data)) {
+            Nota notaRecebida = (Nota) data.getSerializableExtra(CHAVE_NOTA);
+            Toast.makeText(this, notaRecebida.getTitulo(), Toast.LENGTH_SHORT).show();
+        }
     }
 
     private void adiciona(Nota nota) {
@@ -106,10 +94,28 @@ public class ListaNotasActivity extends AppCompatActivity {
     }
 
     private boolean ehCodigoResultadoNotaCriada(int resultCode) {
-        return resultCode == CODIGO_RESULTA_NOTA_CRIADA;
+        return resultCode == CODIGO_RESULTADO_NOTA_CRIADA;
     }
 
     private boolean ehCodigoRequisicaoInsereNota(int requestCode) {
         return requestCode == CODIGO_REQUISICAO_INSERE_NOTA;
+    }
+
+    private void configuraRecyclerView(List<Nota> todasNotas) {
+        RecyclerView listaNotas = findViewById(R.id.lista_notas_recyclirview);
+        configuraAdapter(todasNotas, listaNotas);
+    }
+
+    private void configuraAdapter(List<Nota> todasNotas, RecyclerView listaNotas) {
+        adapter = new ListaNotasAdapter(this, todasNotas);
+        listaNotas.setAdapter(adapter);
+        adapter.setOnItemClickListener(new OnItemClickListener() {
+            @Override
+            public void onItemClick(Nota nota) {
+                Intent intent = new Intent(ListaNotasActivity.this, FormularioNotaActivity.class);
+                intent.putExtra(CHAVE_NOTA, nota);
+                startActivityForResult(intent, 2);
+            }
+        });
     }
 }

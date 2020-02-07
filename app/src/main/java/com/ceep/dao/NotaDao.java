@@ -31,7 +31,7 @@ public class NotaDao {
         Collections.swap(notas, posicaoInicia, posicaoFinal);
     }
 
-    public void removeTodos(){
+    public void removeTodos() {
         notas.clear();
     }
 }

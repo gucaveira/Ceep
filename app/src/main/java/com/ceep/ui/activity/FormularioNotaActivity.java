@@ -1,10 +1,11 @@
-package com.ceep.ui.recyclerview.adapter.activity;
+package com.ceep.ui.activity;
 
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.EditText;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -12,15 +13,33 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.ceep.R;
 import com.ceep.model.Nota;
 
-public class FormularioNotaActivity extends AppCompatActivity {
+import static com.ceep.ui.activity.NotaActivityConstantes.CHAVE_NOTA;
+import static com.ceep.ui.activity.NotaActivityConstantes.CODIGO_RESULTADO_NOTA_CRIADA;
 
-    public static final String CHAVE_NOTA = "nota";
-    public static final int CODIGO_RESULTADO_NOTA_CRIADA = 2;
+public class FormularioNotaActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_formulario_nota);
+
+        Intent dadosRecebidos = getIntent();
+        if (dadosRecebidos.hasExtra(CHAVE_NOTA)) {
+            Nota notaRecebida = (Nota) dadosRecebidos.getSerializableExtra(CHAVE_NOTA);
+            dadosRecebidos.getSerializableExtra(CHAVE_NOTA);
+            if (notaRecebida != null) {
+                preencheCampos(notaRecebida);
+            }
+        }
+
+    }
+
+    private void preencheCampos(Nota nota) {
+        TextView titulo = findViewById(R.id.formulario_nota_titulo);
+        titulo.setText(nota.getTitulo());
+
+        TextView descricao = findViewById(R.id.formulario_nota_descricao);
+        descricao.setText(nota.getDescricao());
     }
 
     @Override
@@ -41,7 +60,7 @@ public class FormularioNotaActivity extends AppCompatActivity {
 
     private void retornaNota(Nota nota) {
         Intent resultadoInsercao = new Intent();
-        resultadoInsercao.putExtra(CHAVE_NOTA,nota);
+        resultadoInsercao.putExtra(CHAVE_NOTA, nota);
         setResult(CODIGO_RESULTADO_NOTA_CRIADA, resultadoInsercao);
     }
 
