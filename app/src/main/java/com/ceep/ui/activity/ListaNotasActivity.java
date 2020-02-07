@@ -1,5 +1,6 @@
 package com.ceep.ui.activity;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -19,8 +20,10 @@ import com.ceep.ui.recyclerview.adapter.listener.OnItemClickListener;
 import java.util.List;
 
 import static com.ceep.ui.activity.NotaActivityConstantes.CHAVE_NOTA;
+import static com.ceep.ui.activity.NotaActivityConstantes.CHAVE_POSICAO;
+import static com.ceep.ui.activity.NotaActivityConstantes.CODIGO_REQUISICAO_ALTERA_NOTA;
 import static com.ceep.ui.activity.NotaActivityConstantes.CODIGO_REQUISICAO_INSERE_NOTA;
-import static com.ceep.ui.activity.NotaActivityConstantes.CODIGO_RESULTADO_NOTA_CRIADA;
+import static com.ceep.ui.activity.NotaActivityConstantes.POSICA_INVALIDA;
 
 public class ListaNotasActivity extends AppCompatActivity {
 
@@ -32,11 +35,8 @@ public class ListaNotasActivity extends AppCompatActivity {
         setContentView(R.layout.activity_lista_notas);
 
         List<Nota> todasNotas = pegaTodasNotas();
-
         configuraRecyclerView(todasNotas);
-
         configuraBotaoInsereNota();
-
     }
 
     private void configuraBotaoInsereNota() {
@@ -44,12 +44,12 @@ public class ListaNotasActivity extends AppCompatActivity {
         botaoInsereNota.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                vaiParaFormularioNotaActivity();
+                vaiParaFormularioNotaActivityInsere();
             }
         });
     }
 
-    private void vaiParaFormularioNotaActivity() {
+    private void vaiParaFormularioNotaActivityInsere() {
         Intent iniciaFormularioNota = new Intent(ListaNotasActivity.this,
                 FormularioNotaActivity.class);
         startActivityForResult(iniciaFormularioNota, CODIGO_REQUISICAO_INSERE_NOTA);
@@ -68,14 +68,53 @@ public class ListaNotasActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (ehResultadoComNota(requestCode, resultCode, data)) {
-            Nota notaRecebida = (Nota) data.getSerializableExtra(CHAVE_NOTA);
-            adiciona(notaRecebida);
+        if (ehResultadoInsereNota(requestCode, data)) {
+
+            if (resultadoOk(resultCode)) {
+                Nota notaRecebida = (Nota) data.getSerializableExtra(CHAVE_NOTA);
+                adiciona(notaRecebida);
+            }
         }
-        if (resultCode == 2 && resultCode == CODIGO_RESULTADO_NOTA_CRIADA && temNota(data)) {
-            Nota notaRecebida = (Nota) data.getSerializableExtra(CHAVE_NOTA);
-            Toast.makeText(this, notaRecebida.getTitulo(), Toast.LENGTH_SHORT).show();
+        if (ehResultaAlteraNota(requestCode, data)) {
+
+            if (resultadoOk(resultCode)) {
+                Nota notaRecebida = (Nota) data.getSerializableExtra(CHAVE_NOTA);
+                int posicaoRecebida = data.getIntExtra(CHAVE_POSICAO, POSICA_INVALIDA);
+
+                if (ehPosicaoValida(posicaoRecebida)) {
+                    altera(notaRecebida, posicaoRecebida);
+                } else {
+                    Toast.makeText(this, "Ocorreu um problema na alteração da nota",
+                            Toast.LENGTH_SHORT).show();
+                }
+            }
         }
+    }
+
+    private boolean resultadoOk(int resultCode) {
+        return resultCode == Activity.RESULT_OK;
+    }
+
+    private void altera(Nota nota, int posicao) {
+        new NotaDao().altera(posicao, nota);
+        adapter.altera(posicao, nota);
+    }
+
+    private boolean ehPosicaoValida(int posicaoRecebida) {
+        return posicaoRecebida > POSICA_INVALIDA;
+    }
+
+    private boolean ehResultaAlteraNota(int requestCode, Intent data) {
+        return ehCodigoRequisicaoAlteraNota(requestCode) && temNota(data);
+    }
+
+    private boolean ehCodigoRequisicaoAlteraNota(int requestCode) {
+        return requestCode == CODIGO_REQUISICAO_ALTERA_NOTA;
+    }
+
+    private boolean ehResultadoInsereNota(int requestCode, Intent data) {
+        return ehCodigoRequisicaoInsereNota(requestCode) &&
+                temNota(data);
     }
 
     private void adiciona(Nota nota) {
@@ -83,18 +122,8 @@ public class ListaNotasActivity extends AppCompatActivity {
         adapter.adiciona(nota);
     }
 
-    private boolean ehResultadoComNota(int requestCode, int resultCode, @Nullable Intent data) {
-        return ehCodigoRequisicaoInsereNota(requestCode) &&
-                ehCodigoResultadoNotaCriada(resultCode) &&
-                temNota(data);
-    }
-
     private boolean temNota(@Nullable Intent data) {
         return data.hasExtra(CHAVE_NOTA);
-    }
-
-    private boolean ehCodigoResultadoNotaCriada(int resultCode) {
-        return resultCode == CODIGO_RESULTADO_NOTA_CRIADA;
     }
 
     private boolean ehCodigoRequisicaoInsereNota(int requestCode) {
@@ -106,15 +135,20 @@ public class ListaNotasActivity extends AppCompatActivity {
         configuraAdapter(todasNotas, listaNotas);
     }
 
+    private void vaiParaFormularioNotaActivityAltera(Nota nota, int posicao) {
+        Intent intent = new Intent(ListaNotasActivity.this, FormularioNotaActivity.class);
+        intent.putExtra(CHAVE_NOTA, nota);
+        intent.putExtra(CHAVE_POSICAO, posicao);
+        startActivityForResult(intent, CODIGO_REQUISICAO_ALTERA_NOTA);
+    }
+
     private void configuraAdapter(List<Nota> todasNotas, RecyclerView listaNotas) {
         adapter = new ListaNotasAdapter(this, todasNotas);
         listaNotas.setAdapter(adapter);
         adapter.setOnItemClickListener(new OnItemClickListener() {
             @Override
-            public void onItemClick(Nota nota) {
-                Intent intent = new Intent(ListaNotasActivity.this, FormularioNotaActivity.class);
-                intent.putExtra(CHAVE_NOTA, nota);
-                startActivityForResult(intent, 2);
+            public void onItemClick(Nota nota, int posicao) {
+                vaiParaFormularioNotaActivityAltera(nota, posicao);
             }
         });
     }
