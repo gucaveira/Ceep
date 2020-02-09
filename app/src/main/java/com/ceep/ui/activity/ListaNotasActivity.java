@@ -133,10 +133,14 @@ public class ListaNotasActivity extends AppCompatActivity {
     }
 
     private void configuraRecyclerView(List<Nota> todasNotas) {
-        RecyclerView listaNotas = findViewById(R.id.lista_notas_recyclirview);
-        configuraAdapter(todasNotas, listaNotas);
+        RecyclerView recyclerView = findViewById(R.id.lista_notas_recyclirview);
+        configuraAdapter(todasNotas, recyclerView);
+        configuraItemTouchHelper(recyclerView);
+    }
+
+    private void configuraItemTouchHelper(RecyclerView recyclerView) {
         ItemTouchHelper itemTouchHelper = new ItemTouchHelper(new NotaItemTouchHelperCallBack(adapter));
-        itemTouchHelper.attachToRecyclerView(listaNotas);
+        itemTouchHelper.attachToRecyclerView(recyclerView);
     }
 
     private void vaiParaFormularioNotaActivityAltera(Nota nota, int posicao) {
