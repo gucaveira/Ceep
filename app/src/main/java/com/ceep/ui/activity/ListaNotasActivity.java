@@ -30,11 +30,13 @@ import static com.ceep.ui.activity.NotaActivityConstantes.POSICA_INVALIDA;
 public class ListaNotasActivity extends AppCompatActivity {
 
     private ListaNotasAdapter adapter;
+    private final String TITULO_APP = "Notas";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_lista_notas);
+        setTitle(TITULO_APP);
 
         List<Nota> todasNotas = pegaTodasNotas();
         configuraRecyclerView(todasNotas);
@@ -125,7 +127,7 @@ public class ListaNotasActivity extends AppCompatActivity {
     }
 
     private boolean temNota(@Nullable Intent data) {
-        return data.hasExtra(CHAVE_NOTA);
+        return data != null && data.hasExtra(CHAVE_NOTA);
     }
 
     private boolean ehCodigoRequisicaoInsereNota(int requestCode) {
